@@ -1,5 +1,4 @@
 #include "vector.hpp"
-
 #include "exceptions.hpp"
 
 template <typename T, class Allocate>
