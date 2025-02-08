@@ -102,8 +102,8 @@ TEST(VectorTests, GetElementByPos) {
 
 TEST(VectorTests, GetElementByWrongPos) {
   vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_THROW(vec[10], InvalidIndexException);
-  ASSERT_THROW(vec[-1], InvalidIndexException);
+  ASSERT_THROW(vec.at(10), invalid_index_exception);
+  ASSERT_THROW(vec.at(-1), invalid_index_exception);
 }
 
 TEST(VectorTests, GetFront) {
@@ -301,12 +301,12 @@ TEST(EmptyVectorTests, ZeroMoveAssignment) {
 
 TEST(EmptyVectorTests, GetFrontInEmptyVector) {
   vector<int, allocator<int>> vec;
-  ASSERT_THROW(vec.front(), VectorIsEmptyException);
+  ASSERT_THROW(vec.front(), vector_is_empty_exception);
 }
 
 TEST(EmptyVectorTests, GetBackInEmptyVector) {
   vector<int, allocator<int>> vec;
-  ASSERT_THROW(vec.back(), VectorIsEmptyException);
+  ASSERT_THROW(vec.back(), vector_is_empty_exception);
 }
 
 TEST(EmptyVectorTests, GetSizeInEmptyVector) {
@@ -333,7 +333,7 @@ TEST(EmptyVectorTests, ClearInEmptyVector) {
 
 TEST(EmptyVectorTests, InsertInEmptyVector) {
   vector<int, allocator<int>> vec;
-  ASSERT_THROW(vec.insert(2, 1), InvalidIndexException);
+  ASSERT_THROW(vec.insert(2, 1), invalid_index_exception);
   vec.insert(0, 1);
   ASSERT_EQ(vec.size(), 1);
   ASSERT_EQ(vec[0], 1);
@@ -341,7 +341,7 @@ TEST(EmptyVectorTests, InsertInEmptyVector) {
 
 TEST(EmptyVectorTests, EraseInEmptyVector) {
   vector<int, allocator<int>> vec;
-  ASSERT_THROW(vec.erase(0, 1), InvalidIndexException);
+  ASSERT_THROW(vec.erase(0, 1), invalid_index_exception);
 }
 
 // Custom type tests
