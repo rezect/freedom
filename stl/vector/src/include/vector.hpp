@@ -5,82 +5,169 @@
 
 const int DEFAULT_CAPACITY = 10;
 
-template <typename T, class Allocator = std::allocator<T>>
-class Vector {
+template <typename T, class allocator = std::allocator<T>>
+class vector {
  public:
-  Vector();
+  class vector_iterator {
+    friend class vector;
 
-  Vector(size_t, const T&);
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+    using size_type = size_t;
 
-  Vector(const Vector&);
+  public:
+    explicit vector_iterator(pointer ptr = nullptr) : ptr_(ptr) {}
 
-  Vector(Vector&&) noexcept;
+    // Операторы доступа
+    reference operator*() const { return *ptr_; }
+    pointer operator->() const { return ptr_; }
 
-  Vector& operator=(const Vector&);
+    // Операторы перемещения
+    vector_iterator& operator++() {
+      ++ptr_;
+      return *this;
+    }
 
-  Vector& operator=(Vector&&);
+    vector_iterator operator++(int) {
+      vector_iterator tmp = *this; ++ptr_;
+      return tmp;
+    }
 
-  Vector(std::initializer_list<T>);
+    vector_iterator& operator--() {
+      --ptr_;
+      return *this;
+    }
+
+    vector_iterator operator--(int) {
+      vector_iterator tmp = *this; --ptr_;
+      return tmp;
+    }
+
+    vector_iterator operator+(size_type n) {
+      return vector_iterator(ptr_ + n);
+    }
+
+    vector_iterator operator-(size_type n) {
+      return vector_iterator(ptr_ - n);
+    }
+
+    vector_iterator& operator+=(size_type n) {
+      ptr_ += n;
+      return *this;
+    }
+
+    vector_iterator& operator-=(size_type n) {
+      ptr_ -= n;
+      return *this;
+    }
+
+    // Операторы сравнения
+    bool operator==(const vector_iterator& other) const {
+      return ptr_ == other.ptr_;
+    }
+
+    bool operator!=(const vector_iterator& other) const {
+      return !(ptr_ == other.ptr_);
+    }
+
+    // Оператор индексации
+    reference operator[](size_t n) const {
+      return *(ptr_ + n);
+    }
+
+   private:
+    pointer ptr_;
+  };
+
+ public:
+  vector();
+
+  vector(size_t, const T&);
+
+  vector(const vector&);
+
+  vector(vector&&) noexcept;
+
+  vector& operator=(const vector&);
+
+  vector& operator=(std::initializer_list<T> ilist);
+
+  vector& operator=(vector&&);
+
+  vector(std::initializer_list<T>);
+
+  T& at(size_t pos) const;
 
   T& operator[](size_t);
 
-  T& Front() const;
+  T& front() const;
 
-  T& Back() const;
+  T& back() const;
 
-  T* Data() const noexcept;
+  vector_iterator begin() const {
+    return vector_iterator(arr_);
+  }
 
-  bool IsEmpty() const noexcept;
+  vector_iterator end() const {
+    return vector_iterator(arr_ + sz_);
+  }
 
-  size_t Size() const noexcept;
+  T* data() const noexcept;
 
-  size_t Capacity() const noexcept;
+  bool is_empty() const noexcept;
 
-  void Reserve(size_t);
+  size_t size() const noexcept;
 
-  void Clear() noexcept;
+  size_t capacity() const noexcept;
 
-  void Insert(size_t, T);
+  void reserve(size_t);
 
-  void Erase(size_t, size_t);
+  void clear() noexcept;
 
-  void PushBack(const T&);
+  void insert(size_t, T);
 
-  void PushBack(T&&);
+  void erase(size_t, size_t);
+
+  void push_back(const T&);
+
+  void push_back(T&&);
 
   template <class... Args>
-  void EmplaceBack(Args&&...);
+  void emplace_back(Args&&...);
 
-  void PopBack();
+  void pop_back();
 
-  void Resize(size_t, const T&);
+  void resize(size_t, const T&);
 
-  ~Vector();
+  ~vector();
 
  private:
-  Allocator alloc_;
+  allocator alloc_;
   T* arr_;
   size_t sz_;
   size_t cap_;
 };
 
-template <class Allocator>
-class Vector<void*, Allocator> {
+template <class allocator>
+class vector<void*, allocator> {
  public:
-  Vector();
+  vector();
 
-  void* Front() const;
+  void* front() const;
 
-  void* Back() const;
+  void* back() const;
 
-  void Reserve(size_t);
+  void reserve(size_t);
 
-  void PushBack(void*);
+  void push_back(void*);
 
-  ~Vector();
+  ~vector();
 
  private:
-  Allocator alloc_;
+  allocator alloc_;
   void** arr_;
   size_t sz_;
   size_t cap_;

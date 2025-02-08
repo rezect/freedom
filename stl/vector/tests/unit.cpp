@@ -6,85 +6,85 @@
 class VectorTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    v.PushBack(1);
-    v.PushBack(2);
-    v.PushBack(3);
-    v.PushBack(4);
-    v.PushBack(5);
-    v.PushBack(6);
-    v.PushBack(7);
-    ASSERT_EQ(v.Size(), 7);
+    v.push_back(1);
+    v.push_back(2);
+    v.push_back(3);
+    v.push_back(4);
+    v.push_back(5);
+    v.push_back(6);
+    v.push_back(7);
+    ASSERT_EQ(v.size(), 7);
   }
-  Vector<int, Allocator<int>> v;
+  vector<int, allocator<int>> v;
 };
 
 // Constructors tests
 
 TEST(ConstructorsTests, DefaultConstructor) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_EQ(vec.Size(), 0);
+  vector<int, allocator<int>> vec;
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(ConstructorsTests, SizeConstructor) {
-  Vector<int, Allocator<int>> vec(5, 1);
-  ASSERT_EQ(vec.Size(), 5);
-  for (size_t i = 0; i < vec.Size(); ++i) {
+  vector<int, allocator<int>> vec(5, 1);
+  ASSERT_EQ(vec.size(), 5);
+  for (size_t i = 0; i < vec.size(); ++i) {
     ASSERT_EQ(vec[i], 1);
   }
 }
 
 TEST(ConstructorsTests, InitializerListConstructor) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Size(), 5);
-  for (size_t i = 0; i < vec.Size(); ++i) {
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.size(), 5);
+  for (size_t i = 0; i < vec.size(); ++i) {
     ASSERT_EQ(vec[i], i + 1);
   }
 }
 
 TEST(ConstructorsTests, CopyConstructor) {
-  Vector<int, Allocator<int>> vec1({1, 2, 3, 4, 5});
-  Vector<int, Allocator<int>> vec2(vec1);
-  ASSERT_EQ(vec1.Size(), 5);
-  ASSERT_EQ(vec1.Size(), vec2.Size());
-  for (size_t i = 0; i < vec1.Size(); ++i) {
+  vector<int, allocator<int>> vec1({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec2(vec1);
+  ASSERT_EQ(vec1.size(), 5);
+  ASSERT_EQ(vec1.size(), vec2.size());
+  for (size_t i = 0; i < vec1.size(); ++i) {
     ASSERT_EQ(vec1[i], vec2[i]);
   }
 }
 
 TEST(ConstructorsTests, MoveConstructor) {
-  Vector<int, Allocator<int>> vec1({1, 2, 3, 4, 5});
-  Vector<int, Allocator<int>> vec2(std::move(vec1));
-  ASSERT_EQ(vec1.Size(), 0);
-  ASSERT_EQ(vec2.Size(), 5);
-  for (size_t i = 0; i < vec2.Size(); ++i) {
+  vector<int, allocator<int>> vec1({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec2(std::move(vec1));
+  ASSERT_EQ(vec1.size(), 0);
+  ASSERT_EQ(vec2.size(), 5);
+  for (size_t i = 0; i < vec2.size(); ++i) {
     ASSERT_EQ(vec2[i], i + 1);
   }
 }
 
 TEST(ConstructorsTests, CopyAssignment) {
-  Vector<int, Allocator<int>> vec1({1, 2, 3, 4, 5});
-  Vector<int, Allocator<int>> vec2;
+  vector<int, allocator<int>> vec1({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec2;
   vec2 = vec1;
-  ASSERT_EQ(vec1.Size(), 5);
-  ASSERT_EQ(vec1.Size(), vec2.Size());
-  for (size_t i = 0; i < vec1.Size(); ++i) {
+  ASSERT_EQ(vec1.size(), 5);
+  ASSERT_EQ(vec1.size(), vec2.size());
+  for (size_t i = 0; i < vec1.size(); ++i) {
     ASSERT_EQ(vec1[i], vec2[i]);
   }
 }
 
 TEST(ConstructorsTests, SelfAssignment) {
-  Vector<int, Allocator<int>> vec1({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec1({1, 2, 3, 4, 5});
   vec1 = vec1;
-  ASSERT_EQ(vec1.Size(), 5);
+  ASSERT_EQ(vec1.size(), 5);
 }
 
 TEST(ConstructorsTests, MoveAssignment) {
-  Vector<int, Allocator<int>> vec1({1, 2, 3, 4, 5});
-  Vector<int, Allocator<int>> vec2;
+  vector<int, allocator<int>> vec1({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec2;
   vec2 = std::move(vec1);
-  ASSERT_EQ(vec1.Size(), 0);
-  ASSERT_EQ(vec2.Size(), 5);
-  for (size_t i = 0; i < vec2.Size(); ++i) {
+  ASSERT_EQ(vec1.size(), 0);
+  ASSERT_EQ(vec2.size(), 5);
+  for (size_t i = 0; i < vec2.size(); ++i) {
     ASSERT_EQ(vec2[i], i + 1);
   }
 }
@@ -92,7 +92,7 @@ TEST(ConstructorsTests, MoveAssignment) {
 // Vector tests
 
 TEST(VectorTests, GetElementByPos) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
   ASSERT_EQ(vec[0], 1);
   ASSERT_EQ(vec[1], 2);
   ASSERT_EQ(vec[2], 3);
@@ -101,29 +101,29 @@ TEST(VectorTests, GetElementByPos) {
 }
 
 TEST(VectorTests, GetElementByWrongPos) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
   ASSERT_THROW(vec[10], InvalidIndexException);
   ASSERT_THROW(vec[-1], InvalidIndexException);
 }
 
 TEST(VectorTests, GetFront) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Front(), 1);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.front(), 1);
 }
 
 TEST(VectorTests, GetBack) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Back(), 5);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.back(), 5);
 }
 
 TEST(VectorTests, GetSize) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Size(), 5);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.size(), 5);
 }
 
 TEST(VectorTests, GetData) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  int* data = vec.Data();
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  int* data = vec.data();
   ASSERT_EQ(data[0], 1);
   ASSERT_EQ(data[1], 2);
   ASSERT_EQ(data[2], 3);
@@ -132,28 +132,28 @@ TEST(VectorTests, GetData) {
 }
 
 TEST(VectorTests, GetCapacity) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
-  ASSERT_EQ(vec.Capacity(), DEFAULT_CAPACITY * 2);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+  ASSERT_EQ(vec.capacity(), DEFAULT_CAPACITY * 2);
 }
 
 TEST(VectorTests, Clear) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  vec.Clear();
-  ASSERT_EQ(vec.Size(), 0);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  vec.clear();
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(VectorTests, Insert) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Size(), 5);
-  vec.Insert(0, 0);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.size(), 5);
+  vec.insert(0, 0);
   ASSERT_EQ(vec[0], 0);
   ASSERT_EQ(vec[1], 1);
   ASSERT_EQ(vec[2], 2);
   ASSERT_EQ(vec[3], 3);
   ASSERT_EQ(vec[4], 4);
   ASSERT_EQ(vec[5], 5);
-  ASSERT_EQ(vec.Size(), 6);
-  vec.Insert(3, 10);
+  ASSERT_EQ(vec.size(), 6);
+  vec.insert(3, 10);
   ASSERT_EQ(vec[0], 0);
   ASSERT_EQ(vec[1], 1);
   ASSERT_EQ(vec[2], 2);
@@ -161,78 +161,78 @@ TEST(VectorTests, Insert) {
   ASSERT_EQ(vec[4], 3);
   ASSERT_EQ(vec[5], 4);
   ASSERT_EQ(vec[6], 5);
-  ASSERT_EQ(vec.Size(), 7);
+  ASSERT_EQ(vec.size(), 7);
 }
 
 TEST(VectorTests, Erase) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Size(), 5);
-  vec.Erase(0, 2);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.size(), 5);
+  vec.erase(0, 2);
   ASSERT_EQ(vec[0], 3);
   ASSERT_EQ(vec[1], 4);
   ASSERT_EQ(vec[2], 5);
-  ASSERT_EQ(vec.Size(), 3);
-  vec.Erase(0, 3);
-  ASSERT_EQ(vec.Size(), 0);
+  ASSERT_EQ(vec.size(), 3);
+  vec.erase(0, 3);
+  ASSERT_EQ(vec.size(), 0);
 }
 
-TEST(VectorTests, PushBack) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_EQ(vec.Size(), 0);
-  vec.PushBack(1);
-  ASSERT_EQ(vec.Size(), 1);
+TEST(VectorTests, push_back) {
+  vector<int, allocator<int>> vec;
+  ASSERT_EQ(vec.size(), 0);
+  vec.push_back(1);
+  ASSERT_EQ(vec.size(), 1);
   ASSERT_EQ(vec[0], 1);
-  vec.PushBack(2);
-  ASSERT_EQ(vec.Size(), 2);
+  vec.push_back(2);
+  ASSERT_EQ(vec.size(), 2);
   ASSERT_EQ(vec[1], 2);
-  vec.PushBack(3);
-  ASSERT_EQ(vec.Size(), 3);
+  vec.push_back(3);
+  ASSERT_EQ(vec.size(), 3);
   ASSERT_EQ(vec[2], 3);
-  vec.PushBack(4);
-  ASSERT_EQ(vec.Size(), 4);
+  vec.push_back(4);
+  ASSERT_EQ(vec.size(), 4);
   ASSERT_EQ(vec[3], 4);
-  vec.PushBack(5);
-  ASSERT_EQ(vec.Size(), 5);
+  vec.push_back(5);
+  ASSERT_EQ(vec.size(), 5);
   ASSERT_EQ(vec[4], 5);
 }
 
 TEST(VectorTests, Emplaceback) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_EQ(vec.Size(), 0);
-  vec.EmplaceBack(1);
-  ASSERT_EQ(vec.Size(), 1);
+  vector<int, allocator<int>> vec;
+  ASSERT_EQ(vec.size(), 0);
+  vec.emplace_back(1);
+  ASSERT_EQ(vec.size(), 1);
   ASSERT_EQ(vec[0], 1);
 }
 
 TEST(VectorTests, PopBack) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Size(), 5);
-  vec.PopBack();
-  ASSERT_EQ(vec.Size(), 4);
-  ASSERT_EQ(vec.Back(), 4);
-  vec.PopBack();
-  ASSERT_EQ(vec.Size(), 3);
-  ASSERT_EQ(vec.Back(), 3);
-  vec.PopBack();
-  ASSERT_EQ(vec.Size(), 2);
-  ASSERT_EQ(vec.Back(), 2);
-  vec.PopBack();
-  ASSERT_EQ(vec.Size(), 1);
-  ASSERT_EQ(vec.Back(), 1);
-  vec.PopBack();
-  ASSERT_EQ(vec.Size(), 0);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.size(), 5);
+  vec.pop_back();
+  ASSERT_EQ(vec.size(), 4);
+  ASSERT_EQ(vec.back(), 4);
+  vec.pop_back();
+  ASSERT_EQ(vec.size(), 3);
+  ASSERT_EQ(vec.back(), 3);
+  vec.pop_back();
+  ASSERT_EQ(vec.size(), 2);
+  ASSERT_EQ(vec.back(), 2);
+  vec.pop_back();
+  ASSERT_EQ(vec.size(), 1);
+  ASSERT_EQ(vec.back(), 1);
+  vec.pop_back();
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(VectorTests, Resize) {
-  Vector<int, Allocator<int>> vec({1, 2, 3, 4, 5});
-  ASSERT_EQ(vec.Size(), 5);
-  vec.Resize(3, 0);
-  ASSERT_EQ(vec.Size(), 3);
+  vector<int, allocator<int>> vec({1, 2, 3, 4, 5});
+  ASSERT_EQ(vec.size(), 5);
+  vec.resize(3, 0);
+  ASSERT_EQ(vec.size(), 3);
   ASSERT_EQ(vec[0], 1);
   ASSERT_EQ(vec[1], 2);
   ASSERT_EQ(vec[2], 3);
-  vec.Resize(7, 0);
-  ASSERT_EQ(vec.Size(), 7);
+  vec.resize(7, 0);
+  ASSERT_EQ(vec.size(), 7);
   ASSERT_EQ(vec[3], 0);
   ASSERT_EQ(vec[4], 0);
   ASSERT_EQ(vec[5], 0);
@@ -240,16 +240,16 @@ TEST(VectorTests, Resize) {
 }
 
 TEST(VectorTests, Swap) {
-  Vector<int, Allocator<int>> vec1({1, 2, 3, 4, 5});
-  Vector<int, Allocator<int>> vec2({6, 7, 8, 9, 10});
+  vector<int, allocator<int>> vec1({1, 2, 3, 4, 5});
+  vector<int, allocator<int>> vec2({6, 7, 8, 9, 10});
   std::swap(vec1, vec2);
-  ASSERT_EQ(vec1.Size(), 5);
+  ASSERT_EQ(vec1.size(), 5);
   ASSERT_EQ(vec1[0], 6);
   ASSERT_EQ(vec1[1], 7);
   ASSERT_EQ(vec1[2], 8);
   ASSERT_EQ(vec1[3], 9);
   ASSERT_EQ(vec1[4], 10);
-  ASSERT_EQ(vec2.Size(), 5);
+  ASSERT_EQ(vec2.size(), 5);
   ASSERT_EQ(vec2[0], 1);
   ASSERT_EQ(vec2[1], 2);
   ASSERT_EQ(vec2[2], 3);
@@ -260,88 +260,88 @@ TEST(VectorTests, Swap) {
 // Empty vector tests
 
 TEST(EmptyVectorTests, ZeroSizeConstructor) {
-  Vector<int, Allocator<int>> vec(0, 1);
-  ASSERT_EQ(vec.Size(), 0);
+  vector<int, allocator<int>> vec(0, 1);
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(EmptyVectorTests, ZeroInitializerListConstructor) {
-  Vector<int, Allocator<int>> vec({});
-  ASSERT_EQ(vec.Size(), 0);
+  vector<int, allocator<int>> vec({});
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(EmptyVectorTests, ZeroCopyConstructor) {
-  Vector<int, Allocator<int>> vec1;
-  Vector<int, Allocator<int>> vec2(vec1);
-  ASSERT_EQ(vec1.Size(), 0);
-  ASSERT_EQ(vec1.Size(), vec2.Size());
+  vector<int, allocator<int>> vec1;
+  vector<int, allocator<int>> vec2(vec1);
+  ASSERT_EQ(vec1.size(), 0);
+  ASSERT_EQ(vec1.size(), vec2.size());
 }
 
 TEST(EmptyVectorTests, ZeroMoveConstructor) {
-  Vector<int, Allocator<int>> vec1;
-  Vector<int, Allocator<int>> vec2(std::move(vec1));
-  ASSERT_EQ(vec1.Size(), 0);
-  ASSERT_EQ(vec2.Size(), 0);
+  vector<int, allocator<int>> vec1;
+  vector<int, allocator<int>> vec2(std::move(vec1));
+  ASSERT_EQ(vec1.size(), 0);
+  ASSERT_EQ(vec2.size(), 0);
 }
 
 TEST(EmptyVectorTests, ZeroCopyAssignment) {
-  Vector<int, Allocator<int>> vec1;
-  Vector<int, Allocator<int>> vec2;
+  vector<int, allocator<int>> vec1;
+  vector<int, allocator<int>> vec2;
   vec2 = vec1;
-  ASSERT_EQ(vec1.Size(), 0);
-  ASSERT_EQ(vec1.Size(), vec2.Size());
+  ASSERT_EQ(vec1.size(), 0);
+  ASSERT_EQ(vec1.size(), vec2.size());
 }
 
 TEST(EmptyVectorTests, ZeroMoveAssignment) {
-  Vector<int, Allocator<int>> vec1;
-  Vector<int, Allocator<int>> vec2;
+  vector<int, allocator<int>> vec1;
+  vector<int, allocator<int>> vec2;
   vec2 = std::move(vec1);
-  ASSERT_EQ(vec1.Size(), 0);
-  ASSERT_EQ(vec2.Size(), 0);
+  ASSERT_EQ(vec1.size(), 0);
+  ASSERT_EQ(vec2.size(), 0);
 }
 
 TEST(EmptyVectorTests, GetFrontInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_THROW(vec.Front(), VectorIsEmptyException);
+  vector<int, allocator<int>> vec;
+  ASSERT_THROW(vec.front(), VectorIsEmptyException);
 }
 
 TEST(EmptyVectorTests, GetBackInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_THROW(vec.Back(), VectorIsEmptyException);
+  vector<int, allocator<int>> vec;
+  ASSERT_THROW(vec.back(), VectorIsEmptyException);
 }
 
 TEST(EmptyVectorTests, GetSizeInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_EQ(vec.Size(), 0);
+  vector<int, allocator<int>> vec;
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(EmptyVectorTests, GetDataInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  int* data = vec.Data();
+  vector<int, allocator<int>> vec;
+  int* data = vec.data();
   ASSERT_EQ(data, nullptr);
 }
 
 TEST(EmptyVectorTests, GetCapacityInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_EQ(vec.Capacity(), 0);
+  vector<int, allocator<int>> vec;
+  ASSERT_EQ(vec.capacity(), 0);
 }
 
 TEST(EmptyVectorTests, ClearInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  vec.Clear();
-  ASSERT_EQ(vec.Size(), 0);
+  vector<int, allocator<int>> vec;
+  vec.clear();
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(EmptyVectorTests, InsertInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_THROW(vec.Insert(2, 1), InvalidIndexException);
-  vec.Insert(0, 1);
-  ASSERT_EQ(vec.Size(), 1);
+  vector<int, allocator<int>> vec;
+  ASSERT_THROW(vec.insert(2, 1), InvalidIndexException);
+  vec.insert(0, 1);
+  ASSERT_EQ(vec.size(), 1);
   ASSERT_EQ(vec[0], 1);
 }
 
 TEST(EmptyVectorTests, EraseInEmptyVector) {
-  Vector<int, Allocator<int>> vec;
-  ASSERT_THROW(vec.Erase(0, 1), InvalidIndexException);
+  vector<int, allocator<int>> vec;
+  ASSERT_THROW(vec.erase(0, 1), InvalidIndexException);
 }
 
 // Custom type tests
@@ -362,13 +362,13 @@ class Employer {
 };
 
 TEST(CustomTypeVectorTests, DefaultConstructor) {
-  Vector<Employer, Allocator<Employer>> vec;
-  ASSERT_EQ(vec.Size(), 0);
+  vector<Employer, allocator<Employer>> vec;
+  ASSERT_EQ(vec.size(), 0);
 }
 
 TEST(CustomTypeVectorTests, InitializerListConstructor) {
-  Vector<Employer, Allocator<Employer>> vec({Employer("John", 30), Employer("Jane", 25)});
-  ASSERT_EQ(vec.Size(), 2);
+  vector<Employer, allocator<Employer>> vec({Employer("John", 30), Employer("Jane", 25)});
+  ASSERT_EQ(vec.size(), 2);
   ASSERT_EQ(vec[0].Name(), "John");
   ASSERT_EQ(vec[0].Age(), 30);
   ASSERT_EQ(vec[1].Name(), "Jane");
@@ -376,10 +376,10 @@ TEST(CustomTypeVectorTests, InitializerListConstructor) {
 }
 
 TEST(CustomTypeVectorTests, CopyConstructor) {
-  Vector<Employer, Allocator<Employer>> vec1({Employer("John", 30), Employer("Jane", 25)});
-  Vector<Employer, Allocator<Employer>> vec2(vec1);
-  ASSERT_EQ(vec1.Size(), 2);
-  ASSERT_EQ(vec2.Size(), 2);
+  vector<Employer, allocator<Employer>> vec1({Employer("John", 30), Employer("Jane", 25)});
+  vector<Employer, allocator<Employer>> vec2(vec1);
+  ASSERT_EQ(vec1.size(), 2);
+  ASSERT_EQ(vec2.size(), 2);
   ASSERT_EQ(vec1[0].Name(), vec2[0].Name());
   ASSERT_EQ(vec1[0].Age(), vec2[0].Age());
   ASSERT_EQ(vec1[1].Name(), vec2[1].Name());
@@ -387,10 +387,10 @@ TEST(CustomTypeVectorTests, CopyConstructor) {
 }
 
 TEST(CustomTypeVectorTests, MoveConstructor) {
-  Vector<Employer, Allocator<Employer>> vec1({Employer("John", 30), Employer("Jane", 25)});
-  Vector<Employer, Allocator<Employer>> vec2(std::move(vec1));
-  ASSERT_EQ(vec1.Size(), 0);
-  ASSERT_EQ(vec2.Size(), 2);
+  vector<Employer, allocator<Employer>> vec1({Employer("John", 30), Employer("Jane", 25)});
+  vector<Employer, allocator<Employer>> vec2(std::move(vec1));
+  ASSERT_EQ(vec1.size(), 0);
+  ASSERT_EQ(vec2.size(), 2);
   ASSERT_EQ(vec2[0].Name(), "John");
   ASSERT_EQ(vec2[0].Age(), 30);
   ASSERT_EQ(vec2[1].Name(), "Jane");

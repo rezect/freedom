@@ -1,11 +1,11 @@
 #include "vector.hpp"
 #include "exceptions.hpp"
 
-template <typename T, class Allocate>
-Vector<T, Allocate>::Vector() : arr_(nullptr), sz_(0), cap_(0) {}
+template <typename T, class allocator>
+vector<T, allocator>::vector() : arr_(nullptr), sz_(0), cap_(0) {}
 
-template <typename T, class Allocate>
-Vector<T, Allocate>::Vector(size_t count, const T& value) : Vector() {
+template <typename T, class allocator>
+vector<T, allocator>::vector(size_t count, const T& value) : vector() {
   cap_ = DEFAULT_CAPACITY;
   while (cap_ < count) {
     cap_ *= 2;
@@ -16,8 +16,8 @@ Vector<T, Allocate>::Vector(size_t count, const T& value) : Vector() {
   }
 }
 
-template <typename T, class Allocate>
-Vector<T, Allocate>::Vector(const Vector& other)
+template <typename T, class allocator>
+vector<T, allocator>::vector(const vector& other)
     : sz_(other.sz_), cap_(other.cap_) {
   if (cap_ == 0) {
     arr_ = nullptr;
@@ -27,25 +27,25 @@ Vector<T, Allocate>::Vector(const Vector& other)
   std::uninitialized_copy(other.arr_, other.arr_ + other.sz_, arr_);
 }
 
-template <typename T, class Allocate>
-Vector<T, Allocate>::Vector(Vector&& other) noexcept
+template <typename T, class allocator>
+vector<T, allocator>::vector(vector&& other) noexcept
     : arr_(other.arr_), sz_(other.sz_), cap_(other.cap_) {
   other.sz_ = 0;
   other.cap_ = 0;
   other.arr_ = nullptr;
 }
 
-template <typename T, class Allocate>
-Vector<T, Allocate>::Vector(std::initializer_list<T> init)
+template <typename T, class allocator>
+vector<T, allocator>::vector(std::initializer_list<T> ilist)
     : arr_(nullptr), sz_(0), cap_(DEFAULT_CAPACITY) {
   arr_ = alloc_.allocate(cap_);
-  for (const T& val : init) {
+  for (const T& val : ilist) {
     this->PushBack(std::move(val));
   }
 }
 
-template <typename T, class Allocate>
-Vector<T, Allocate>& Vector<T, Allocate>::operator=(const Vector& other) {
+template <typename T, class allocator>
+vector<T, allocator>& vector<T, allocator>::operator=(const vector& other) {
   if (this != &other) {
     this->Clear();
     sz_ = other.sz_;
@@ -60,8 +60,17 @@ Vector<T, Allocate>& Vector<T, Allocate>::operator=(const Vector& other) {
   return *this;
 }
 
-template <typename T, class Allocate>
-Vector<T, Allocate>& Vector<T, Allocate>::operator=(Vector&& other) {
+template <typename T, class allocator>
+vector<T, allocator>& vector<T, allocator>::operator=(std::initializer_list<T> ilist) {
+  this->Clear();
+  for (const T& val : ilist) {
+    this->PushBack(std::move(val));
+  }
+  return *this;
+}
+
+template <typename T, class allocator>
+vector<T, allocator>& vector<T, allocator>::operator=(vector&& other) {
   if (this != &other) {
     this->Clear();
     arr_ = other.arr_;
@@ -74,52 +83,57 @@ Vector<T, Allocate>& Vector<T, Allocate>::operator=(Vector&& other) {
   return *this;
 }
 
-template <typename T, class Allocate>
-T& Vector<T, Allocate>::operator[](size_t pos) {
+template <typename T, class allocator>
+T& vector<T, allocator>::at(size_t pos) const {
   if (pos >= sz_ || pos < 0) {
     throw InvalidIndexException("Invalid index");
   }
   return arr_[pos];
 }
 
-template <typename T, class Allocate>
-T& Vector<T, Allocate>::Front() const {
+template <typename T, class allocator>
+T& vector<T, allocator>::operator[](size_t pos) {
+  return arr_[pos];
+}
+
+template <typename T, class allocator>
+T& vector<T, allocator>::front() const {
   if (sz_ == 0) {
-    throw VectorIsEmptyException("Vector is empty");
+    throw vectorIsEmptyException("vector is empty");
   }
   return arr_[0];
 }
 
-template <typename T, class Allocate>
-bool Vector<T, Allocate>::IsEmpty() const noexcept {
+template <typename T, class allocator>
+bool vector<T, allocator>::is_empty() const noexcept {
   return sz_ == 0;
 }
 
-template <typename T, class Allocate>
-T& Vector<T, Allocate>::Back() const {
+template <typename T, class allocator>
+T& vector<T, allocator>::back() const {
   if (sz_ == 0) {
-    throw VectorIsEmptyException("Vector is empty");
+    throw vectorIsEmptyException("vector is empty");
   }
   return arr_[sz_ - 1];
 }
 
-template <typename T, class Allocate>
-T* Vector<T, Allocate>::Data() const noexcept {
+template <typename T, class allocator>
+T* vector<T, allocator>::data() const noexcept {
   return arr_;
 }
 
-template <typename T, class Allocate>
-size_t Vector<T, Allocate>::Size() const noexcept {
+template <typename T, class allocator>
+size_t vector<T, allocator>::size() const noexcept {
   return sz_;
 }
 
-template <typename T, class Allocate>
-size_t Vector<T, Allocate>::Capacity() const noexcept {
+template <typename T, class allocator>
+size_t vector<T, allocator>::capacity() const noexcept {
   return cap_;
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::Reserve(size_t new_cap) {
+template <typename T, class allocator>
+void vector<T, allocator>::reserve(size_t new_cap) {
   if (new_cap <= cap_) {
     InvalidReserveSizeException("New capacity is less or equal to current");
   }
@@ -134,8 +148,8 @@ void Vector<T, Allocate>::Reserve(size_t new_cap) {
   cap_ = new_cap;
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::Clear() noexcept {
+template <typename T, class allocator>
+void vector<T, allocator>::clear() noexcept {
   if (cap_ == 0 || arr_ == nullptr) {
     return;
   }
@@ -148,8 +162,8 @@ void Vector<T, Allocate>::Clear() noexcept {
   sz_ = 0;
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::Insert(size_t pos, T value) {
+template <typename T, class allocator>
+void vector<T, allocator>::insert(size_t pos, T value) {
   if (pos > sz_ || pos < 0) {
     throw InvalidIndexException("Invalid index");
   }
@@ -159,8 +173,8 @@ void Vector<T, Allocate>::Insert(size_t pos, T value) {
   this->PushBack(std::move(value));
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::Erase(size_t begin_pos, size_t end_pos) {
+template <typename T, class allocator>
+void vector<T, allocator>::erase(size_t begin_pos, size_t end_pos) {
   if (begin_pos >= end_pos || begin_pos > sz_ || end_pos > sz_) {
     throw InvalidIndexException("Invalid index");
   }
@@ -181,8 +195,8 @@ void Vector<T, Allocate>::Erase(size_t begin_pos, size_t end_pos) {
   cap_ = old_cap;
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::PushBack(const T& value) {
+template <typename T, class allocator>
+void vector<T, allocator>::push_back(const T& value) {
   if (cap_ == 0) {
     this->Reserve(DEFAULT_CAPACITY);
   } else if (cap_ == sz_) {
@@ -192,14 +206,14 @@ void Vector<T, Allocate>::PushBack(const T& value) {
   ++sz_;
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::PushBack(T&& value) {
+template <typename T, class allocator>
+void vector<T, allocator>::push_back(T&& value) {
   this->EmplaceBack(std::move(value));
 }
 
-template <typename T, class Allocate>
+template <typename T, class allocator>
 template <class... Args>
-void Vector<T, Allocate>::EmplaceBack(Args&&... args) {
+void vector<T, allocator>::emplace_back(Args&&... args) {
   if (cap_ == 0) {
     this->Reserve(DEFAULT_CAPACITY);
   } else if (cap_ == sz_) {
@@ -209,17 +223,17 @@ void Vector<T, Allocate>::EmplaceBack(Args&&... args) {
   ++sz_;
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::PopBack() {
+template <typename T, class allocator>
+void vector<T, allocator>::pop_back() {
   if (sz_ == 0) {
-    throw VectorIsEmptyException("You tried to pop from empty vector");
+    throw vectorIsEmptyException("You tried to pop from empty vector");
   }
   alloc_.destroy(arr_ + sz_ - 1);
   --sz_;
 }
 
-template <typename T, class Allocate>
-void Vector<T, Allocate>::Resize(size_t count, const T& value) {
+template <typename T, class allocator>
+void vector<T, allocator>::resize(size_t count, const T& value) {
   if (count > sz_) {
     for (size_t i = sz_; i < count; ++i) {
       this->PushBack(value);
@@ -229,8 +243,8 @@ void Vector<T, Allocate>::Resize(size_t count, const T& value) {
   }
 }
 
-template <typename T, class Allocate>
-Vector<T, Allocate>::~Vector() {
+template <typename T, class allocator>
+vector<T, allocator>::~vector() {
   this->Clear();
 }
 
@@ -238,27 +252,27 @@ Vector<T, Allocate>::~Vector() {
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 
-template <class Allocate>
-Vector<void*, Allocate>::Vector() : arr_(nullptr), sz_(0), cap_(0) {}
+template <class allocator>
+vector<void*, allocator>::vector() : arr_(nullptr), sz_(0), cap_(0) {}
 
-template <class Allocate>
-void* Vector<void*, Allocate>::Front() const {
+template <class allocator>
+void* vector<void*, allocator>::front() const {
   if (sz_ == 0) {
-    throw VectorIsEmptyException("Vector is empty");
+    throw vectorIsEmptyException("vector is empty");
   }
   return arr_[0];
 }
 
-template <class Allocate>
-void* Vector<void*, Allocate>::Back() const {
+template <class allocator>
+void* vector<void*, allocator>::back() const {
   if (sz_ == 0) {
-    throw VectorIsEmptyException("Vector is empty");
+    throw vectorIsEmptyException("vector is empty");
   }
   return arr_[sz_ - 1];
 }
 
-template <class Allocate>
-void Vector<void*, Allocate>::Reserve(size_t new_cap) {
+template <class allocator>
+void vector<void*, allocator>::reserve(size_t new_cap) {
   if (new_cap <= cap_) {
     return;
   }
@@ -271,8 +285,8 @@ void Vector<void*, Allocate>::Reserve(size_t new_cap) {
   cap_ = new_cap;
 }
 
-template <class Allocate>
-void Vector<void*, Allocate>::PushBack(void* value) {
+template <class allocator>
+void vector<void*, allocator>::push_back(void* value) {
   if (cap_ == 0) {
     this->Reserve(DEFAULT_CAPACITY);
   } else if (cap_ == sz_) {
@@ -282,7 +296,7 @@ void Vector<void*, Allocate>::PushBack(void* value) {
   ++sz_;
 }
 
-template <class Allocate>
-Vector<void*, Allocate>::~Vector() {
+template <class allocator>
+vector<void*, allocator>::~vector() {
   alloc_.deallocate(arr_, cap_);
 }
