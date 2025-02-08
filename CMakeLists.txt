@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.31)
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
 
 project(freedom)
 
@@ -10,3 +12,4 @@ FetchContent_Declare(
     URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 )
 FetchContent_MakeAvailable(googletest)
+
