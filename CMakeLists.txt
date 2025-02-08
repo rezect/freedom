@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.31)
+
+enable_testing()
+
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
 
