@@ -10,7 +10,7 @@ Vector<T, Allocate>::Vector(size_t count, const T& value) : Vector() {
   while (cap_ < count) {
     cap_ *= 2;
   }
-  arr_ = aloc_.allocate(cap_);
+  arr_ = alloc_.allocate(cap_);
   for (size_t i = 0; i < count; ++i) {
     this->PushBack(value);
   }
@@ -19,7 +19,11 @@ Vector<T, Allocate>::Vector(size_t count, const T& value) : Vector() {
 template <typename T, class Allocate>
 Vector<T, Allocate>::Vector(const Vector& other)
     : sz_(other.sz_), cap_(other.cap_) {
-  arr_ = aloc_.allocate(other.cap_);
+  if (cap_ == 0) {
+    arr_ = nullptr;
+    return;
+  }
+  arr_ = alloc_.allocate(other.cap_);
   std::uninitialized_copy(other.arr_, other.arr_ + other.sz_, arr_);
 }
 
@@ -34,7 +38,7 @@ Vector<T, Allocate>::Vector(Vector&& other) noexcept
 template <typename T, class Allocate>
 Vector<T, Allocate>::Vector(std::initializer_list<T> init)
     : arr_(nullptr), sz_(0), cap_(DEFAULT_CAPACITY) {
-  arr_ = aloc_.allocate(cap_);
+  arr_ = alloc_.allocate(cap_);
   for (const T& val : init) {
     this->PushBack(std::move(val));
   }
@@ -46,7 +50,11 @@ Vector<T, Allocate>& Vector<T, Allocate>::operator=(const Vector& other) {
     this->Clear();
     sz_ = other.sz_;
     cap_ = other.cap_;
-    arr_ = aloc_.allocate(cap_);
+    if (cap_ == 0) {
+      arr_ = nullptr;
+      return *this;
+    }
+    arr_ = alloc_.allocate(cap_);
     std::uninitialized_copy(other.arr_, other.arr_ + other.sz_, arr_);
   }
   return *this;
@@ -75,7 +83,7 @@ T& Vector<T, Allocate>::operator[](size_t pos) {
 }
 
 template <typename T, class Allocate>
-T& Vector<T, Allocate>::Front() const noexcept {
+T& Vector<T, Allocate>::Front() const {
   if (sz_ == 0) {
     throw VectorIsEmptyException("Vector is empty");
   }
@@ -88,7 +96,7 @@ bool Vector<T, Allocate>::IsEmpty() const noexcept {
 }
 
 template <typename T, class Allocate>
-T& Vector<T, Allocate>::Back() const noexcept {
+T& Vector<T, Allocate>::Back() const {
   if (sz_ == 0) {
     throw VectorIsEmptyException("Vector is empty");
   }
@@ -115,10 +123,10 @@ void Vector<T, Allocate>::Reserve(size_t new_cap) {
   if (new_cap <= cap_) {
     InvalidReserveSizeException("New capacity is less or equal to current");
   }
-  T* new_arr = aloc_.allocate(new_cap);
+  T* new_arr = alloc_.allocate(new_cap);
   size_t old_sz = sz_;
   for (size_t i = 0; i < sz_; ++i) {
-    new (new_arr + i) T(std::move(arr_[i]));
+    alloc_.construct(new_arr + i, std::move(arr_[i]));
   }
   this->Clear();
   sz_ = old_sz;
@@ -128,20 +136,23 @@ void Vector<T, Allocate>::Reserve(size_t new_cap) {
 
 template <typename T, class Allocate>
 void Vector<T, Allocate>::Clear() noexcept {
-  if (sz_ == 0) {
+  if (cap_ == 0 || arr_ == nullptr) {
     return;
   }
   for (size_t i = 0; i < sz_; ++i) {
-    (arr_ + i)->~T();
+    alloc_.destroy(arr_ + i);
   }
-  aloc_.deallocate(arr_, cap_);
-  cap_ = DEFAULT_CAPACITY;
-  arr_ = aloc_.allocate(cap_);
+  alloc_.deallocate(arr_, cap_);
+  cap_ = 0;
+  arr_ = nullptr;
   sz_ = 0;
 }
 
 template <typename T, class Allocate>
 void Vector<T, Allocate>::Insert(size_t pos, T value) {
+  if (pos > sz_ || pos < 0) {
+    throw InvalidIndexException("Invalid index");
+  }
   for (size_t i = pos; i < sz_; ++i) {
     std::swap(value, arr_[i]);
   }
@@ -150,23 +161,24 @@ void Vector<T, Allocate>::Insert(size_t pos, T value) {
 
 template <typename T, class Allocate>
 void Vector<T, Allocate>::Erase(size_t begin_pos, size_t end_pos) {
-  if (begin_pos >= end_pos || begin_pos >= sz_ || end_pos > sz_) {
+  if (begin_pos >= end_pos || begin_pos > sz_ || end_pos > sz_) {
     throw InvalidIndexException("Invalid index");
   }
-  T* new_arr = aloc_.allocate(cap_);
-  size_t old_size = sz_;
+  T* new_arr = alloc_.allocate(cap_);
+  size_t old_cap = cap_;
   size_t j = 0;
   for (size_t i = 0; i < begin_pos; ++i) {
-    new (new_arr + i) T(std::move(arr_[i]));
+    alloc_.construct(new_arr + j, std::move(arr_[i]));
     ++j;
   }
   for (size_t i = end_pos; i < sz_; ++i) {
-    new (new_arr + j) T(std::move(arr_[i]));
+    alloc_.construct(new_arr + j, std::move(arr_[i]));
     ++j;
   }
   this->Clear();
   arr_ = new_arr;
-  sz_ = old_size - (end_pos - begin_pos);
+  sz_ = j;
+  cap_ = old_cap;
 }
 
 template <typename T, class Allocate>
@@ -176,7 +188,7 @@ void Vector<T, Allocate>::PushBack(const T& value) {
   } else if (cap_ == sz_) {
     this->Reserve(cap_ * 2);
   }
-  new (arr_ + sz_) T(value);
+  alloc_.construct(arr_ + sz_, value);
   ++sz_;
 }
 
@@ -193,7 +205,7 @@ void Vector<T, Allocate>::EmplaceBack(Args&&... args) {
   } else if (cap_ == sz_) {
     this->Reserve(cap_ * 2);
   }
-  new (arr_ + sz_) T(std::forward<T>(args)...);
+  alloc_.construct(arr_ + sz_, std::forward<Args>(args)...);
   ++sz_;
 }
 
@@ -202,7 +214,7 @@ void Vector<T, Allocate>::PopBack() {
   if (sz_ == 0) {
     throw VectorIsEmptyException("You tried to pop from empty vector");
   }
-  (arr_ + sz_ - 1)->~T();
+  alloc_.destroy(arr_ + sz_ - 1);
   --sz_;
 }
 
@@ -230,12 +242,18 @@ template <class Allocate>
 Vector<void*, Allocate>::Vector() : arr_(nullptr), sz_(0), cap_(0) {}
 
 template <class Allocate>
-void* Vector<void*, Allocate>::Front() const noexcept {
+void* Vector<void*, Allocate>::Front() const {
+  if (sz_ == 0) {
+    throw VectorIsEmptyException("Vector is empty");
+  }
   return arr_[0];
 }
 
 template <class Allocate>
-void* Vector<void*, Allocate>::Back() const noexcept {
+void* Vector<void*, Allocate>::Back() const {
+  if (sz_ == 0) {
+    throw VectorIsEmptyException("Vector is empty");
+  }
   return arr_[sz_ - 1];
 }
 
@@ -244,11 +262,11 @@ void Vector<void*, Allocate>::Reserve(size_t new_cap) {
   if (new_cap <= cap_) {
     return;
   }
-  void** new_arr = static_cast<void**>(aloc_.allocate(new_cap));
+  void** new_arr = static_cast<void**>(alloc_.allocate(new_cap));
   for (size_t i = 0; i < sz_; ++i) {
     new_arr[i] = arr_[i];
   }
-  aloc_.deallocate(arr_, cap_);
+  alloc_.deallocate(arr_, cap_);
   arr_ = new_arr;
   cap_ = new_cap;
 }
@@ -266,5 +284,5 @@ void Vector<void*, Allocate>::PushBack(void* value) {
 
 template <class Allocate>
 Vector<void*, Allocate>::~Vector() {
-  aloc_.deallocate(arr_, cap_);
+  alloc_.deallocate(arr_, cap_);
 }

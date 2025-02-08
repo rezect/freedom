@@ -24,9 +24,9 @@ class Vector {
 
   T& operator[](size_t);
 
-  T& Front() const noexcept;
+  T& Front() const;
 
-  T& Back() const noexcept;
+  T& Back() const;
 
   T* Data() const noexcept;
 
@@ -58,7 +58,7 @@ class Vector {
   ~Vector();
 
  private:
-  Allocator aloc_;
+  Allocator alloc_;
   T* arr_;
   size_t sz_;
   size_t cap_;
@@ -69,9 +69,9 @@ class Vector<void*, Allocator> {
  public:
   Vector();
 
-  void* Front() const noexcept;
+  void* Front() const;
 
-  void* Back() const noexcept;
+  void* Back() const;
 
   void Reserve(size_t);
 
@@ -80,7 +80,7 @@ class Vector<void*, Allocator> {
   ~Vector();
 
  private:
-  Allocator aloc_;
+  Allocator alloc_;
   void** arr_;
   size_t sz_;
   size_t cap_;
