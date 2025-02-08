@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 template<typename T>
-class Allocator {
+class allocator {
  public:
   T* allocate(size_t count) const {
     return (T*)(::operator new(count * sizeof(T)));
