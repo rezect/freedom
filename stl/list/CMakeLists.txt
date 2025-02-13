@@ -1,1 +1,2 @@
-add_subdirectory(forward list)
+add_subdirectory(forward)
+add_subdirectory(list)
