@@ -8,3 +8,8 @@ add_test(NAME vector_tests COMMAND vector_tests)
 
 # List (forward)
 add_subdirectory(list)
+
+# List
+
+# Tree (BST)
+add_subdirectory(tree)
