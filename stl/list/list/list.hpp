@@ -1,7 +1,5 @@
 #pragma once
 
-#include <fmt/core.h>
-
 #include <cstddef>
 #include <cstdlib>
 #include <functional>
@@ -184,8 +182,16 @@ template <typename T> class List {
     Node *new_node = new Node(value);
     new_node->next_ = pos.current_;
     new_node->prev_ = pos.current_->prev_;
-    new_node->prev_->next_ = new_node;
-    new_node->next_->prev_ = new_node;
+    if (new_node->prev_) {
+      new_node->prev_->next_ = new_node;
+    } else {
+      head_ = new_node;
+    }
+    if (new_node->next_) {
+      new_node->next_->prev_ = new_node;
+    } else {
+      tail_ = new_node;
+    }
     ++size_;
   }
 
