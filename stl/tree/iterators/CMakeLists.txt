@@ -1,0 +1,4 @@
+add_executable(tree_iterators_tests tests/unit.cpp)
+
+target_link_libraries(tree_iterators_tests PRIVATE gtest gtest_main fmt)
+add_test(NAME tree_iterators_tests COMMAND tree_iterators_tests)
