@@ -6,10 +6,8 @@ target_include_directories(vector_tests PRIVATE allocator/src vector/src vector/
 
 add_test(NAME vector_tests COMMAND vector_tests)
 
-# List (forward)
+# List
 add_subdirectory(list)
 
-# List
-
-# Tree (BST)
+# Tree
 add_subdirectory(tree)
