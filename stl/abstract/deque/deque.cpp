@@ -240,7 +240,17 @@ void Deque<T, Allocator>::pop_back() {
   if (size_ == 0) {
     throw DequeIsEmptyException("deque is empty");
   }
-  alloc_.destroy(buckets_[end_.row_] + end_.ind_);
   --end_;
+  alloc_.destroy(buckets_[end_.row_] + end_.ind_);
+  --size_;
+}
+
+template <typename T, class Allocator>
+void Deque<T, Allocator>::pop_front() {
+  if (size_ == 0) {
+    throw DequeIsEmptyException("deque is empty");
+  }
+  alloc_.destroy(buckets_[begin_.row_] + begin_.ind_);
+  ++begin_;
   --size_;
 }

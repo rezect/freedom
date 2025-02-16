@@ -71,6 +71,28 @@ TEST(DequeTests, PushBackFront) {
   ASSERT_EQ(deq.back(), 999);
 }
 
+TEST(DequeTests, PopBack) {
+  Deque<int> deq;
+  for (size_t i = 0; i < 1000; ++i) {
+    deq.push_back(i);
+  }
+  for (size_t i = 0; i < 1000; ++i) {
+    deq.pop_back();
+  }
+  ASSERT_EQ(deq.size(), 0);
+}
+
+TEST(DequeTests, PopFront) {
+  Deque<int> deq;
+  for (size_t i = 0; i < 1000; ++i) {
+    deq.push_back(i);
+  }
+  for (size_t i = 0; i < 1000; ++i) {
+    deq.pop_front();
+  }
+  ASSERT_EQ(deq.size(), 0);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
