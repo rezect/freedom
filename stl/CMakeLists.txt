@@ -11,3 +11,6 @@ add_subdirectory(list)
 
 # Tree
 add_subdirectory(tree)
+
+# Abstract
+add_subdirectory(abstract)
