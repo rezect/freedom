@@ -9,7 +9,7 @@ Deque<T, Allocator>::Deque()
     : buckets_(nullptr), begin_(0, 0), end_(0, 0), size_(0), cap_(0) {}
 
 template <typename T, class Allocator>
-Deque<T, Allocator>::Deque(const Deque &other) {
+Deque<T, Allocator>::Deque(const Deque &other) : Deque() {
   this->cap_ = other.cap_;
   buckets_ = (T **)malloc(sizeof(T *) * cap_);
   for (size_t i = 0; i < other.cap_; ++i) {
@@ -141,32 +141,19 @@ void Deque<T, Allocator>::restore(size_t new_cap, bool to_back) {
     this->buckets_ = new_buckets;
     this->cap_ = new_cap;
   } else {
-    T **new_buckets = (T **)malloc(sizeof(T *) * new_cap);
-    for (size_t i = 0; i < new_cap; ++i) {
+    T** new_buckets = (T **)malloc(sizeof(T *) * new_cap);
+    for (size_t i = 0; i < new_cap - cap_; ++i) {
       new_buckets[i] = nullptr;
     }
-    std::memcpy(new_buckets + this->cap_, this->buckets_,
-                sizeof(T *) * this->cap_);
-    this->cap_ = new_cap;
-
-    if (this->size_ > 0) {
-      auto it = this->begin_;
-      while (it != this->end_) {
-        alloc_.destroy(buckets_[it.row_] + it.ind_);
-        ++it;
-      }
-    }
-    for (size_t i = 0; i < cap_; ++i) {
-      if (buckets_[i] == nullptr) {
-        continue;
-      }
-      alloc_.deallocate(buckets_[i], CHUNK_SZ);
+    for (size_t i = new_cap - cap_; i < new_cap; ++i) {
+      new_buckets[i] = buckets_[i + cap_ - new_cap];
     }
     free(buckets_);
 
     this->buckets_ = new_buckets;
     this->begin_.row_ += new_cap - cap_;
     this->end_.row_ += new_cap - cap_;
+    this->cap_ = new_cap;
   }
 }
 
@@ -209,49 +196,51 @@ void Deque<T, Allocator>::emplace_back(Args &&...args) {
   ++size_;
 }
 
-// template <typename T, class Allocator>
-// void Deque<T, Allocator>::push_front(const T &val) {
-//   this->emplace_front(val);
-// }
+template <typename T, class Allocator>
+void Deque<T, Allocator>::push_front(const T &val) {
+  this->emplace_front(val);
+}
 
-// template <typename T, class Allocator>
-// void Deque<T, Allocator>::push_front(T &&val) {
-//   this->emplace_front(std::move(val));
-// }
+template <typename T, class Allocator>
+void Deque<T, Allocator>::push_front(T &&val) {
+  this->emplace_front(std::move(val));
+}
 
-// template <typename T, class Allocator>
-// template <class... Args>
-// void Deque<T, Allocator>::emplace_front(Args &&...args) {
-//   if (buckets_ == nullptr) {
-//     this->cap_ = DEFAULT_CAP;
-//     this->buckets_ = (T **)malloc(sizeof(T *) * cap_);
-//     for (size_t i = 0; i < cap_; ++i) {
-//       buckets_[i] = nullptr;
-//       if (i == cap_ / 2) {
-//         buckets_[i] = alloc_.allocate(CHUNK_SZ);
-//       }
-//     }
-//     this->begin_ = Deque<T, Allocator>::DequeIterator(cap_ / 2, 0);
-//     this->end_ = Deque<T, Allocator>::DequeIterator(cap_ / 2, 1);
-//     alloc_.construct(buckets_[cap_ / 2], std::forward<Args>(args)...);
-//   } else {
-//     if (begin_.row_ == 0) {
-//       this->restore(cap_ * 2, false);
-//       buckets_[begin_.row_] = alloc_.allocate(CHUNK_SZ);
-//     }
-//     alloc_.construct(buckets_[begin_.row_] + begin_.ind_,
-//                      std::forward<Args>(args)...);
-//     --begin_;
-//   }
-//   ++size_;
-// }
+template <typename T, class Allocator>
+template <class... Args>
+void Deque<T, Allocator>::emplace_front(Args &&...args) {
+  if (buckets_ == nullptr) {
+    this->cap_ = DEFAULT_CAP;
+    this->buckets_ = (T **)malloc(sizeof(T *) * cap_);
+    for (size_t i = 0; i < cap_; ++i) {
+      buckets_[i] = nullptr;
+      if (i == cap_ / 2) {
+        buckets_[i] = alloc_.allocate(CHUNK_SZ);
+      }
+    }
+    this->begin_ = Deque<T, Allocator>::DequeIterator(cap_ / 2, 0);
+    this->end_ = Deque<T, Allocator>::DequeIterator(cap_ / 2, 1);
+    alloc_.construct(buckets_[cap_ / 2], std::forward<Args>(args)...);
+  } else {
+    if (begin_.row_ == 0 && begin_.ind_ == 0) {
+      this->restore(cap_ * 2, false);
+    }
+    if (begin_.ind_ == 0) {
+      buckets_[begin_.row_ - 1] = alloc_.allocate(CHUNK_SZ);
+    }
+    --begin_;
+    alloc_.construct(buckets_[begin_.row_] + begin_.ind_,
+                     std::forward<Args>(args)...);
+  }
+  ++size_;
+}
 
-// template <typename T, class Allocator>
-// void Deque<T, Allocator>::pop_back() {
-//   if (size_ == 0) {
-//     throw DequeIsEmptyException("deque is empty");
-//   }
-//   alloc_.destroy(buckets_[end_.row_] + end_.ind_);
-//   --end_;
-//   --size_;
-// }
+template <typename T, class Allocator>
+void Deque<T, Allocator>::pop_back() {
+  if (size_ == 0) {
+    throw DequeIsEmptyException("deque is empty");
+  }
+  alloc_.destroy(buckets_[end_.row_] + end_.ind_);
+  --end_;
+  --size_;
+}
